@@ -27,3 +27,16 @@ class Password(Auditable):
             'updated_at': DateFormat.convert_date(self.updated_at)  # Formatea la fecha de actualización
         }
 
+    def to_tuple(self):
+        # Convierte los atributos del objeto en una tupla
+        return (
+            self.id,
+            self.url,
+            self.username,
+            self.keyword,
+            self.description,
+            self.category,
+            self.user_id,
+            self.created_at,
+            self.updated_at
+        )

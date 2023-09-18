@@ -99,19 +99,49 @@ class PasswordService():
     @classmethod
     def get_password_byID(cls, id):
         """
-        Obtiene un Password segun su ID, actualmente sin Uso
+        Obtiene un Password segun su ID
         """
         try:
             conn = get_connection()
             with conn.cursor() as cursor:
                 cursor.execute("SELECT id, url, username, keyword, description, category, user_id, created_at, updated_at FROM password WHERE id = %s",(id,))
                 row = cursor.fetchone()
-                #cursor.close()
+                cursor.close()
                 password = None
                 if row is not None:
                     password = cls.map_to_password(row)
-                    password = password.to_JSON()
             conn.close()    
             return password
         except Exception as ex:
             raise ex    
+
+    @classmethod
+    def update_password(cls, pwd):
+        try:
+            conn = get_connection()
+            with conn.cursor() as cursor:
+                # Encriptar los campos antes de actualizar en la base de datos
+                cls.encrypt_password_fields(pwd)
+                cursor.callproc(
+                    'update_password', 
+                    (
+                        pwd.id,
+                        pwd.url,
+                        pwd.username,
+                        pwd.keyword,
+                        pwd.description,
+                        pwd.category,
+                        pwd.user_id,
+                        pwd.created_at,
+                        pwd.updated_at
+                    )
+                )
+                updated_row = cursor.fetchone()
+                conn.commit()
+                if updated_row and updated_row[0] == 1:
+                    pwd = cls.map_to_password(pwd.to_tuple())
+            conn.close()
+            return pwd.to_JSON()
+        except Exception as ex:
+            print('en el update')
+            raise ex
