@@ -29,60 +29,34 @@ class PasswordService():
         password.created_at = row[7]  # Establece la fecha de creación
         password.updated_at = row[8]  # Establece la fecha de actualización
         return password 
-    
-    @classmethod
-    def get_all_passwords(cls):
-        try:
-            conn = get_connection()
-            passwords = []
-            with conn.cursor() as cursor:
-                cursor.execute("SELECT id, url, username, keyword, description, category, user_id, created_at, updated_at FROM password")
-                resulset = cursor.fetchall()
-                cursor.close()
-                for row in resulset:
-                    password = cls.map_to_password(row)
-                    passwords.append(password.to_JSON())
-            conn.close()    
-            return passwords
-        except Exception as ex:
-            raise ex
         
     @classmethod
-    def get_password_byID(cls, id):
-        try:
-            conn = get_connection()
-            with conn.cursor() as cursor:
-                cursor.execute("SELECT id, url, username, keyword, description, category, user_id, created_at, updated_at FROM password WHERE id = %s",(id,))
-                row = cursor.fetchone()
-                #cursor.close()
-                password = None
-                if row is not None:
-                    password = cls.map_to_password(row)
-                    password = password.to_JSON()
-            conn.close()    
-            return password
-        except Exception as ex:
-            raise ex    
-
-    @classmethod
     def get_password_byUserID(cls, user_id):
+        """
+        Obtiene todos los Password de un Usuario.
+        """
         try:
-            conn = get_connection()
-            passwords = []
-            with conn.cursor() as cursor:
-                cursor.execute("SELECT id, url, username, keyword, description, category, user_id, created_at, updated_at FROM password WHERE user_id = %s",(user_id))
-                resulset = cursor.fetchall()
-                cursor.close()
-                for row in resulset:
-                    password = cls.map_to_password(row)
-                    passwords.append(password.to_JSON())
-            conn.close()    
-            return passwords
+            conn = get_connection() #Establecer una coneccion con la Base de Datos
+            passwords = [] #Crear un array vacio
+            with conn.cursor() as cursor: #Con la coneccion crear un cursor
+                # Con el cursor llamar a la funcion de la BD que ejecuta la consulta
+                cursor.execute("SELECT * FROM get_passwords_by_user_id(%s)", (user_id,))
+                resulset = cursor.fetchall() #meter todos los resultados en un resulset
+                cursor.close() # cerrar el cursor para que no apunte mas a la BD
+                for row in resulset: # recorrer el resulset y por cada registro
+                    password = cls.map_to_password(row) #mapear el registro a una entidad Password
+                    passwords.append(password.to_JSON()) #Agregar la entidad al array passwords convertida en JSON
+            conn.close()#Cerrar la coneccion a la Base de Datos
+            return passwords #Retornar los passwords
         except Exception as ex:
             raise ex    
         
     @classmethod
     def add_password(cls, pwd):
+        """
+        Agrega un nueva Password con los valores privados encriptados, de esta manera
+        ni el administrador de la base de datos podra ver su contenido
+        """
         try:
             conn = get_connection()
             with conn.cursor() as cursor:
@@ -102,3 +76,42 @@ class PasswordService():
         except Exception as ex:
             raise ex    
     
+    @classmethod
+    def get_all_passwords(cls):
+        """
+        Obtiene todos los Password, actualmente sin Uso
+        """
+        try:
+            conn = get_connection()
+            passwords = []
+            with conn.cursor() as cursor:
+                cursor.execute("SELECT id, url, username, keyword, description, category, user_id, created_at, updated_at FROM password")
+                resulset = cursor.fetchall()
+                cursor.close()
+                for row in resulset:
+                    password = cls.map_to_password(row)
+                    passwords.append(password.to_JSON())
+            conn.close()    
+            return passwords
+        except Exception as ex:
+            raise ex
+        
+    @classmethod
+    def get_password_byID(cls, id):
+        """
+        Obtiene un Password segun su ID, actualmente sin Uso
+        """
+        try:
+            conn = get_connection()
+            with conn.cursor() as cursor:
+                cursor.execute("SELECT id, url, username, keyword, description, category, user_id, created_at, updated_at FROM password WHERE id = %s",(id,))
+                row = cursor.fetchone()
+                #cursor.close()
+                password = None
+                if row is not None:
+                    password = cls.map_to_password(row)
+                    password = password.to_JSON()
+            conn.close()    
+            return password
+        except Exception as ex:
+            raise ex    

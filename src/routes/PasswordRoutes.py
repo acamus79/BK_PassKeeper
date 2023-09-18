@@ -8,10 +8,15 @@ from services.PasswordService import PasswordService
 
 main = Blueprint('password_blueprint', __name__)
 
-@main.route('/')
+@main.route('/') #ruta para acceder
+@jwt_required() #se requiere autenticacion por JWT
 def get_all():
     try:
-        return jsonify(PasswordService.get_all_passwords())
+        #Obtener la identidad del usuario del token
+        current_user = get_jwt_identity() 
+        print(current_user['user_id'])
+        #Obtener todas las contraseñas del usuario dueño del token
+        return jsonify(PasswordService.get_password_byUserID(current_user['user_id']))
     except Exception as ex:
         return jsonify({'message': str(ex)}),500
 
