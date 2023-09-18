@@ -19,7 +19,7 @@ if __name__ == '__main__':
     app.config['JWT_SECRET_KEY'] = config['development'].JWT_SECRET_KEY
     
     # Blueprints
-    app.register_blueprint(PasswordRoutes.main, url_prefix='/api/v1/')
+    app.register_blueprint(PasswordRoutes.pwd_routes, url_prefix='/api/v1/')
     app.register_blueprint(AuthRoutes.auth_routes, url_prefix='/api/v1/auth')
     
     # Error handlers

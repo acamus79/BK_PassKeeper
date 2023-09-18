@@ -8,7 +8,7 @@ class FernetFactory:
     def create_fernet_instance(self):
         try:
             if not self.key or not isinstance(self.key, str):
-                raise ValueError("La variable de entorno ENCRYPTION_KEY no está configurada o no es una cadena válida")
+                raise ValueError("The ENCRYPTION_KEY environment variable is not set or is not a valid string.")
             return Fernet(self.key)
         except Exception as ex:
-            raise ValueError(f"Error al crear la instancia de Fernet: {str(ex)}")
+            raise ValueError(f"Error when creating the Fernet instance: {str(ex)}")
