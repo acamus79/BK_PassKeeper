@@ -1,6 +1,5 @@
 from flask import Blueprint, jsonify, request
 from flask_jwt_extended import get_jwt_identity, jwt_required, verify_jwt_in_request
-import uuid
 
 #Entidades
 from entities.Password import Password
@@ -18,7 +17,7 @@ def get_all():
         #Obtener todas las contraseñas del usuario dueño del token
         return jsonify(PasswordService.get_password_byUserID(current_user['user_id']))
     except Exception as ex:
-        return jsonify({'message': str(ex)}),500
+        return jsonify({'error': str(ex)}),500
 
 @pwd_routes.route('/add', methods = ['POST'])
 @jwt_required()
@@ -38,8 +37,6 @@ def add_pwd():
         rows_affected = PasswordService.add_password(password)
         if rows_affected > 0:
             return jsonify({'message': 'Password added correctly'}), 201
-        else:
-            return jsonify({'message': 'Could not add password'}), 500
     except Exception as ex:
         return jsonify({'error': str(ex)}), 500
 
@@ -78,9 +75,9 @@ def patch_password(id):
         # Guarda la contraseña actualizada en la base de datos
         return PasswordService.update_password(password)
     except Exception as ex:
-        return jsonify({'message': str(ex)}),500
+        return jsonify({'error': str(ex)}),500
 
-@pwd_routes.route('/<id>', methods=['PATCH'])
+@pwd_routes.route('/<id>', methods=['DELETE'])
 @jwt_required()
 def delete_password(id):
     try:
@@ -94,7 +91,9 @@ def delete_password(id):
         if current_user['user_id'] != password.user_id:
             return jsonify({'error': 'Unauthorized. Current user does not match the password owner.'}), 401
         
+        if PasswordService.delete_password(id):
+            return jsonify({'message': 'The record was deleted successfully.'}), 200
         
     except Exception as ex:
-        return jsonify({'message': str(ex)}),500
+        return jsonify({'error': str(ex)}),500
         

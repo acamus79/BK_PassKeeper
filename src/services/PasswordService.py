@@ -35,8 +35,8 @@ class PasswordService():
         """
         Obtiene todos los Password de un Usuario.
         """
+        conn = get_connection() #Establecer una coneccion con la Base de Datos
         try:
-            conn = get_connection() #Establecer una coneccion con la Base de Datos
             passwords = [] #Crear un array vacio
             with conn.cursor() as cursor: #Con la coneccion crear un cursor
                 # Con el cursor llamar a la funcion de la BD que ejecuta la consulta
@@ -46,19 +46,20 @@ class PasswordService():
                 for row in resulset: # recorrer el resulset y por cada registro
                     password = cls.map_to_password(row) #mapear el registro a una entidad Password
                     passwords.append(password.to_JSON()) #Agregar la entidad al array passwords convertida en JSON
-            conn.close()#Cerrar la coneccion a la Base de Datos
             return passwords #Retornar los passwords
         except Exception as ex:
             raise ex    
-        
+        finally:
+            conn.close()#Cerrar la coneccion a la Base de Datos
+            
     @classmethod
     def add_password(cls, pwd):
         """
         Agrega un nueva Password con los valores privados encriptados, de esta manera
         ni el administrador de la base de datos podra ver su contenido
         """
+        conn = get_connection()
         try:
-            conn = get_connection()
             with conn.cursor() as cursor:
                 # Encriptar los campos antes de insertar en la base de datos
                 cls.encrypt_password_fields(pwd)
@@ -71,10 +72,11 @@ class PasswordService():
                 )
                 affected_rows = cursor.rowcount
                 conn.commit()
-            conn.close()    
             return affected_rows
         except Exception as ex:
-            raise ex    
+            raise ex
+        finally:
+            conn.close()    
     
     @classmethod
     def get_all_passwords(cls):
@@ -101,8 +103,8 @@ class PasswordService():
         """
         Obtiene un Password segun su ID
         """
+        conn = get_connection()
         try:
-            conn = get_connection()
             with conn.cursor() as cursor:
                 cursor.execute("SELECT id, url, username, keyword, description, category, user_id, created_at, updated_at FROM password WHERE id = %s",(id,))
                 row = cursor.fetchone()
@@ -110,15 +112,16 @@ class PasswordService():
                 password = None
                 if row is not None:
                     password = cls.map_to_password(row)
-            conn.close()    
             return password
         except Exception as ex:
             raise ex    
-
+        finally:
+            conn.close()
+            
     @classmethod
     def update_password(cls, pwd):
+        conn = get_connection()
         try:
-            conn = get_connection()
             with conn.cursor() as cursor:
                 # Encriptar los campos antes de actualizar en la base de datos
                 cls.encrypt_password_fields(pwd)
@@ -137,11 +140,25 @@ class PasswordService():
                     )
                 )
                 updated_row = cursor.fetchone()
+                cursor.close()
                 conn.commit()
                 if updated_row and updated_row[0] == 1:
                     pwd = cls.map_to_password(pwd.to_tuple())
-            conn.close()
             return pwd.to_JSON()
         except Exception as ex:
-            print('en el update')
             raise ex
+        finally:
+            conn.close()
+
+    @classmethod
+    def delete_password(cls, id):
+        conn = get_connection()
+        try:
+            with conn.cursor() as cursor:
+                cursor.execute("DELETE FROM password WHERE id = %s", (id,))
+                conn.commit()
+            return True  # Devuelve True si la eliminación fue exitosa
+        except Exception as ex:
+            raise ex
+        finally:
+            conn.close()
