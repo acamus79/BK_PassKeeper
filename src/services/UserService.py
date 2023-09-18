@@ -21,8 +21,8 @@ class UserService():
     
     @classmethod
     def sing_up(cls, user):
+        conn = get_connection()
         try:
-            conn = get_connection()
             with conn.cursor() as cursor:
                 # Encriptar la contraseña antes de insertar en la base de datos
                 user.password = EncryptionService.encrypt_field(user.password)
@@ -36,30 +36,46 @@ class UserService():
                 )
                 
                 if cursor.rowcount == 0:
-                    return jsonify({'message': 'No se pudo crear el usuario'}), 201
+                    return jsonify({'error': 'User could not be created'}), 409
                 else:
                     conn.commit()
-                    conn.close()    
             return user
         except Exception as ex:
             raise ex  
-
-    @classmethod
-    def sing_in(cls):
-        print('x')
-    
+        finally:
+            conn.close()    
+            
     @classmethod
     def get_user_by_email(cls, email):
+        conn = get_connection()
         try:
-            conn = get_connection()
             with conn.cursor() as cursor:
                 cursor.execute("SELECT id, email, pwd, created_at, updated_at FROM users WHERE email = %s", (email,))
                 user_data = cursor.fetchone()
                 if user_data:
                     user = cls.map_to_user(user_data)
                     return user
-
-            conn.close()
             return None 
+        except Exception as ex:
+            raise ex
+        finally:
+            conn.close()
+            
+    @classmethod
+    def update_user_password(cls, id, pwd):
+        try:
+            conn = get_connection()
+            with conn.cursor() as cursor:
+                cursor.execute(
+                "UPDATE users SET pwd = %s WHERE id = %s",
+                (pwd, id)
+                )
+                if cursor.rowcount > 0:
+                    conn.commit()# Guardar los cambios si hubo actualización
+                    conn.close()
+                    return True
+                else:
+                    conn.close()
+                    return False  # No se actualizó ningún registro
         except Exception as ex:
             raise ex
