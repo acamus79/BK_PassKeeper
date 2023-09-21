@@ -1,4 +1,6 @@
 import base64
+import string
+import secrets
 from util.FernetFactory import FernetFactory
 
 # Excepciones personalizadas para errores de encriptación y desencriptación
@@ -53,3 +55,11 @@ class EncryptionService:
             return decrypted_value.decode()
         except Exception as ex:
             raise DecryptionError("Error de desencriptación: " + str(ex))
+
+    @staticmethod
+    def generateKey(long):
+        characters = string.ascii_letters + string.digits + string.punctuation
+        password = ''
+        for _ in range(long):
+            password+=secrets.choice(characters)
+        return password

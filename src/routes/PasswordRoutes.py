@@ -1,10 +1,12 @@
 from flask import Blueprint, jsonify, request
-from flask_jwt_extended import get_jwt_identity, jwt_required, verify_jwt_in_request
+from flask_jwt_extended import get_jwt_identity, jwt_required
+
 
 #Entidades
 from entities.Password import Password
-# Modelos
+# Servicios
 from services.PasswordService import PasswordService
+from services.EncriptionService import EncryptionService
 
 pwd_routes = Blueprint('password_blueprint', __name__)
 
@@ -96,4 +98,15 @@ def delete_password(id):
         
     except Exception as ex:
         return jsonify({'error': str(ex)}),500
-        
+
+@pwd_routes.route('/gen', methods=['GET'])
+@pwd_routes.route('/gen/<int:long>', methods=['GET'])
+def generate_password(long=12):
+    # Si es menor o igual a uno, establecer la longitud predeterminada en 12
+    if long <= 1:
+            long = 12
+    # Generar una contraseña con la longitud especificada
+    password = EncryptionService.generateKey(long)
+    # Devolver la contraseña generada como una respuesta JSON
+    return jsonify({'password': password}), 200
+
