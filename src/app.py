@@ -18,6 +18,9 @@ if __name__ == '__main__':
     # Configura la clave secreta del JWTManager
     app.config['JWT_SECRET_KEY'] = config['development'].JWT_SECRET_KEY
     
+    # Obtiene el valor de la variable de entorno PORT o usa 5000 como valor predeterminado
+    port = config['development'].PORT or 5000
+    
     # Blueprints
     app.register_blueprint(PasswordRoutes.pwd_routes, url_prefix='/api/v1/')
     app.register_blueprint(AuthRoutes.auth_routes, url_prefix='/api/v1/auth')
@@ -25,4 +28,4 @@ if __name__ == '__main__':
     # Error handlers
     app.register_error_handler(404, page_not_found)
     #app.register_error_handler(500, page_not_found)
-    app.run()
+    app.run(host='0.0.0.0', port=port)
