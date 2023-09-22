@@ -6,7 +6,7 @@ class Config:
     PORT= config('PORT')
 
 class DevelopmentConfig(Config):
-    DEBUG=True
+    DEBUG=False
 
 config = {
     'development': DevelopmentConfig
