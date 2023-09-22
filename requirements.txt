@@ -19,4 +19,4 @@ pycparser==2.21
 PyJWT==2.8.0
 python-decouple==3.8
 python-dotenv==0.21.1
-Werkzeug==2.3.7
+Werkzeug==2.2.3
