@@ -10,4 +10,4 @@ RUN pip install --no-cache-dir --upgrade -r /code/requirements.txt
 COPY ./src /code/src
 
 # Ejecuta Gunicorn con la configuración proporcionada
-CMD ["gunicorn", "-c", "/code/gunicorn_config.py", "main:app"]
+CMD ["gunicorn", "-c", "/code/gunicorn_config.py", "main:app", "--proxy-headers"]
