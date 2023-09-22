@@ -19,7 +19,7 @@ if __name__ == '__main__':
     # Configura la clave secreta del JWTManager
     app.config['JWT_SECRET_KEY'] = config['development'].JWT_SECRET_KEY
     
-    # Obtiene el valor de la variable de entorno PORT o usa 5000 como valor predeterminado
+    # Obtiene el valor de la variable de entorno PORT o usa 8000 como valor predeterminado
     port = config['development'].PORT or 8000
     
     # Blueprints
