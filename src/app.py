@@ -20,7 +20,7 @@ if __name__ == '__main__':
     app.config['JWT_SECRET_KEY'] = config['development'].JWT_SECRET_KEY
     
     # Obtiene el valor de la variable de entorno PORT o usa 5000 como valor predeterminado
-    port = config['development'].PORT or 5000
+    port = config['development'].PORT or 8000
     
     # Blueprints
     app.register_blueprint(PasswordRoutes.pwd_routes, url_prefix='/api/v1/')
