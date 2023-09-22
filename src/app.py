@@ -1,6 +1,7 @@
 from flask import Flask
 from flask_jwt_extended import JWTManager
-from config import config
+from API_config import config
+
 # Routes
 from routes import PasswordRoutes
 from routes import AuthRoutes
@@ -28,4 +29,5 @@ if __name__ == '__main__':
     # Error handlers
     app.register_error_handler(404, page_not_found)
     #app.register_error_handler(500, page_not_found)
-    app.run(host='0.0.0.0', port=port)
+    
+    app.run()
